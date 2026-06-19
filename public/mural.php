@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/config.php';
 
 use App\Auth;
+use App\Csrf;
 use App\Database;
 
 Auth::requireRole('partner');
@@ -74,6 +75,14 @@ if ($selectedVehicle !== null) {
     <h1>Mural de viagens</h1>
     <p><a href="/index.php">Voltar</a></p>
 
+    <?php if (($_GET['outcome'] ?? null) === 'accepted'): ?>
+        <p style="color:green;">Viagem aceite com sucesso.</p>
+    <?php elseif (($_GET['outcome'] ?? null) === 'conflict'): ?>
+        <p style="color:red;">Essa viagem já tinha sido aceite por outro parceiro entretanto.</p>
+    <?php elseif (($_GET['outcome'] ?? null) === 'not_found'): ?>
+        <p style="color:red;">Essa viagem já não está disponível.</p>
+    <?php endif; ?>
+
     <?php if ($vehicles === []): ?>
         <p>Não tens viaturas ativas registadas.</p>
     <?php else: ?>
@@ -102,6 +111,7 @@ if ($selectedVehicle !== null) {
                         <th>Passageiros</th>
                         <th>Malas</th>
                         <th>Preço</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,6 +123,14 @@ if ($selectedVehicle !== null) {
                             <td><?= (int) $trip['passengers_count'] ?></td>
                             <td><?= (int) $trip['luggage_count'] ?></td>
                             <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
+                            <td>
+                                <form method="post" action="/accept-trip.php">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
+                                    <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
+                                    <input type="hidden" name="vehicle_id" value="<?= (int) $selectedVehicle['id'] ?>">
+                                    <button type="submit">Aceitar</button>
+                                </form>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
