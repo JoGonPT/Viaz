@@ -21,6 +21,7 @@ $user = Auth::user();
     <p>Perfil: <?= htmlspecialchars($user['role'], ENT_QUOTES) ?></p>
     <?php if ($user['role'] === 'partner'): ?>
         <p><a href="/mural.php">Mural de viagens</a></p>
+        <p><a href="/my-trips.php">As minhas viagens</a></p>
     <?php endif; ?>
     <?php if ($user['role'] === 'admin'): ?>
         <p><a href="/private-trip-new.php">Criar envio privado</a></p>
