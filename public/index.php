@@ -21,6 +21,7 @@ require __DIR__ . '/../views/header.php';
             <h2 style="margin-top:0;">Parceiro</h2>
             <p><a href="/mural.php">Mural de viagens</a></p>
             <p><a href="/my-trips.php">As minhas viagens</a></p>
+            <p><a href="/my-vehicles.php">As minhas viaturas</a></p>
         </div>
     <?php endif; ?>
 
