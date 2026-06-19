@@ -24,6 +24,7 @@ $user = Auth::user();
     <?php endif; ?>
     <?php if ($user['role'] === 'admin'): ?>
         <p><a href="/private-trip-new.php">Criar envio privado</a></p>
+        <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
     <?php endif; ?>
     <a href="/logout.php">Sair</a>
 </body>
