@@ -32,4 +32,11 @@ require __DIR__ . '/../views/header.php';
             <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
         </div>
     <?php endif; ?>
+
+    <?php if ($user['role'] === 'client'): ?>
+        <div class="card">
+            <h2 style="margin-top:0;">Cliente</h2>
+            <p><a href="/my-requests.php">Os meus pedidos de transporte</a></p>
+        </div>
+    <?php endif; ?>
 <?php require __DIR__ . '/../views/footer.php'; ?>

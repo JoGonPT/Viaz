@@ -30,6 +30,9 @@ $currentUser = Auth::check() ? Auth::user() : null;
                     <a href="/private-trip-new.php">Envio privado</a>
                     <a href="/groups.php">Grupos</a>
                 <?php endif; ?>
+                <?php if ($currentUser['role'] === 'client'): ?>
+                    <a href="/my-requests.php">Os meus pedidos</a>
+                <?php endif; ?>
             </nav>
             <div class="topbar-user">
                 <span><?= htmlspecialchars($currentUser['full_name'], ENT_QUOTES) ?></span>
