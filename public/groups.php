@@ -7,7 +7,7 @@ require_once __DIR__ . '/../config/config.php';
 use App\Auth;
 use App\Database;
 
-Auth::requireRole('admin', 'partner');
+Auth::requireRole('admin');
 
 $pdo = Database::connection();
 
