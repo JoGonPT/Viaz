@@ -8,7 +8,7 @@ use App\Auth;
 use App\Csrf;
 use App\Database;
 
-Auth::requireRole('admin');
+Auth::requireRole('admin', 'partner');
 
 $pdo = Database::connection();
 

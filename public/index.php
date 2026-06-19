@@ -22,6 +22,8 @@ require __DIR__ . '/../views/header.php';
             <p><a href="/mural.php">Mural de viagens</a></p>
             <p><a href="/my-trips.php">As minhas viagens</a></p>
             <p><a href="/my-vehicles.php">As minhas viaturas</a></p>
+            <p><a href="/private-trip-new.php">Criar envio privado</a></p>
+            <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
         </div>
     <?php endif; ?>
 
