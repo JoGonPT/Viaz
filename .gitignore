@@ -1,3 +1,4 @@
 .env
 /vendor/
 database/setup-remote.sh
+sftp.json

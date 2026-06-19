@@ -73,56 +73,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Novo envio privado';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Novo envio privado</title>
-</head>
-<body>
     <h1>Criar envio privado</h1>
-    <p><a href="/index.php">Voltar</a></p>
 
     <?php if ($success): ?>
-        <p style="color:green;">Envio privado criado e atribuído ao parceiro com sucesso.</p>
+        <p class="alert alert-success">Envio privado criado e atribuído ao parceiro com sucesso.</p>
     <?php endif; ?>
 
     <?php foreach ($errors as $error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
+        <p class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
     <?php endforeach; ?>
 
     <?php if ($clients === [] || $partners === []): ?>
-        <p>É preciso ter pelo menos um cliente e um parceiro ativos antes de criar um envio privado.</p>
+        <p class="muted">É preciso ter pelo menos um cliente e um parceiro ativos antes de criar um envio privado.</p>
     <?php else: ?>
         <form method="post" action="/private-trip-new.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
 
-            <label>Cliente:
+            <label>Cliente
                 <select name="client_id" required>
                     <?php foreach ($clients as $client): ?>
                         <option value="<?= (int) $client['id'] ?>"><?= htmlspecialchars($client['company_name'], ENT_QUOTES) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </label><br>
+            </label>
 
-            <label>Parceiro convidado:
+            <label>Parceiro convidado
                 <select name="partner_id" required>
                     <?php foreach ($partners as $partner): ?>
                         <option value="<?= (int) $partner['id'] ?>"><?= htmlspecialchars($partner['company_name'], ENT_QUOTES) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </label><br>
+            </label>
 
-            <label>Origem: <input type="text" name="origin" required></label><br>
-            <label>Destino: <input type="text" name="destination" required></label><br>
-            <label>Data/Hora: <input type="datetime-local" name="scheduled_at" required></label><br>
-            <label>Passageiros: <input type="number" name="passengers_count" min="1" required></label><br>
-            <label>Malas: <input type="number" name="luggage_count" min="0" value="0" required></label><br>
-            <label>Preço (opcional): <input type="number" name="listed_price" step="0.01" min="0"></label><br>
+            <label>Origem <input type="text" name="origin" required></label>
+            <label>Destino <input type="text" name="destination" required></label>
+            <label>Data/Hora <input type="datetime-local" name="scheduled_at" required></label>
+            <label>Passageiros <input type="number" name="passengers_count" min="1" required></label>
+            <label>Malas <input type="number" name="luggage_count" min="0" value="0" required></label>
+            <label>Preço (opcional) <input type="number" name="listed_price" step="0.01" min="0"></label>
 
             <button type="submit">Criar envio privado</button>
         </form>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

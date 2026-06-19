@@ -50,43 +50,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+$pageTitle = 'Novo grupo de serviço';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Novo grupo de serviço</title>
-</head>
-<body>
     <h1>Criar grupo de serviço</h1>
-    <p><a href="/groups.php">Voltar</a></p>
+    <p><a href="/groups.php">← Voltar aos grupos</a></p>
 
     <?php foreach ($errors as $error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
+        <p class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
     <?php endforeach; ?>
 
     <?php if ($clients === []): ?>
-        <p>É preciso ter pelo menos um cliente ativo antes de criar um grupo.</p>
+        <p class="muted">É preciso ter pelo menos um cliente ativo antes de criar um grupo.</p>
     <?php else: ?>
         <form method="post" action="/group-new.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
 
-            <label>Cliente:
+            <label>Cliente
                 <select name="client_id" required>
                     <?php foreach ($clients as $client): ?>
                         <option value="<?= (int) $client['id'] ?>"><?= htmlspecialchars($client['company_name'], ENT_QUOTES) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </label><br>
+            </label>
 
-            <label>Origem: <input type="text" name="origin" required></label><br>
-            <label>Destino: <input type="text" name="destination" required></label><br>
-            <label>Data/Hora: <input type="datetime-local" name="scheduled_at" required></label><br>
-            <label>Total de passageiros: <input type="number" name="total_passengers" min="1" required></label><br>
-            <label>Total de malas: <input type="number" name="total_luggage" min="0" value="0" required></label><br>
+            <label>Origem <input type="text" name="origin" required></label>
+            <label>Destino <input type="text" name="destination" required></label>
+            <label>Data/Hora <input type="datetime-local" name="scheduled_at" required></label>
+            <label>Total de passageiros <input type="number" name="total_passengers" min="1" required></label>
+            <label>Total de malas <input type="number" name="total_luggage" min="0" value="0" required></label>
 
             <button type="submit">Criar grupo</button>
         </form>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

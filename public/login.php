@@ -29,23 +29,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Credenciais inválidas.';
     }
 }
+
+$pageTitle = 'Entrar';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Entrar</title>
-</head>
-<body>
-    <h1>Entrar</h1>
-    <?php if ($error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
-    <?php endif; ?>
-    <form method="post" action="/login.php">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
-        <label>Email <input type="email" name="email" required></label><br>
-        <label>Password <input type="password" name="password" required></label><br>
-        <button type="submit">Entrar</button>
-    </form>
-</body>
-</html>
+    <div class="auth-container">
+        <h1>Entrar</h1>
+        <?php if ($error): ?>
+            <p class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
+        <?php endif; ?>
+        <form method="post" action="/login.php">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required></label>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+<?php require __DIR__ . '/../views/footer.php'; ?>

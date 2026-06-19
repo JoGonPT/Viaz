@@ -18,21 +18,16 @@ $groups = $pdo->query(
      INNER JOIN clients c ON c.id = sg.client_id
      ORDER BY sg.scheduled_at DESC"
 )->fetchAll();
+$pageTitle = 'Grupos de serviço';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Grupos de serviço</title>
-</head>
-<body>
     <h1>Grupos de serviço</h1>
-    <p><a href="/index.php">Voltar</a> | <a href="/group-new.php">Novo grupo</a></p>
+    <p><a href="/group-new.php">+ Novo grupo</a></p>
 
     <?php if ($groups === []): ?>
-        <p>Ainda não há grupos criados.</p>
+        <p class="muted">Ainda não há grupos criados.</p>
     <?php else: ?>
-        <table border="1" cellpadding="6">
+        <table>
             <thead>
                 <tr>
                     <th>Cliente</th>
@@ -54,12 +49,11 @@ $groups = $pdo->query(
                         <td><?= htmlspecialchars($group['scheduled_at'], ENT_QUOTES) ?></td>
                         <td><?= (int) $group['total_passengers'] ?></td>
                         <td><?= (int) $group['total_luggage'] ?></td>
-                        <td><?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?></td>
+                        <td><span class="badge"><?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?></span></td>
                         <td><a href="/group-trips.php?group_id=<?= (int) $group['id'] ?>">Gerir</a></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

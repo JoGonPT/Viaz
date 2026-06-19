@@ -9,24 +9,26 @@ use App\Auth;
 Auth::requireLogin();
 
 $user = Auth::user();
+
+$pageTitle = 'Painel';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Painel</title>
-</head>
-<body>
     <h1>Bem-vindo, <?= htmlspecialchars($user['full_name'], ENT_QUOTES) ?></h1>
-    <p>Perfil: <?= htmlspecialchars($user['role'], ENT_QUOTES) ?></p>
+    <p class="muted">Perfil: <?= htmlspecialchars($user['role'], ENT_QUOTES) ?></p>
+
     <?php if ($user['role'] === 'partner'): ?>
-        <p><a href="/mural.php">Mural de viagens</a></p>
-        <p><a href="/my-trips.php">As minhas viagens</a></p>
+        <div class="card">
+            <h2 style="margin-top:0;">Parceiro</h2>
+            <p><a href="/mural.php">Mural de viagens</a></p>
+            <p><a href="/my-trips.php">As minhas viagens</a></p>
+        </div>
     <?php endif; ?>
+
     <?php if ($user['role'] === 'admin'): ?>
-        <p><a href="/private-trip-new.php">Criar envio privado</a></p>
-        <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
+        <div class="card">
+            <h2 style="margin-top:0;">Administração</h2>
+            <p><a href="/private-trip-new.php">Criar envio privado</a></p>
+            <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
+        </div>
     <?php endif; ?>
-    <a href="/logout.php">Sair</a>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

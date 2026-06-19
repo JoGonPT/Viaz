@@ -88,7 +88,7 @@ if ($selectedVehicle !== null) {
 function render_trips_table(array $trips, int $vehicleId): void
 {
     ?>
-    <table border="1" cellpadding="6">
+    <table>
         <thead>
             <tr>
                 <th>Origem</th>
@@ -110,7 +110,7 @@ function render_trips_table(array $trips, int $vehicleId): void
                     <td><?= (int) $trip['luggage_count'] ?></td>
                     <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
                     <td>
-                        <form method="post" action="/accept-trip.php">
+                        <form class="inline" method="post" action="/accept-trip.php">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
                             <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
                             <input type="hidden" name="vehicle_id" value="<?= $vehicleId ?>">
@@ -123,34 +123,29 @@ function render_trips_table(array $trips, int $vehicleId): void
     </table>
     <?php
 }
+
+$pageTitle = 'Mural';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Mural</title>
-</head>
-<body>
     <h1>Mural de viagens</h1>
-    <p><a href="/index.php">Voltar</a></p>
 
     <?php if (($_GET['outcome'] ?? null) === 'accepted'): ?>
-        <p style="color:green;">Viagem aceite com sucesso.</p>
+        <p class="alert alert-success">Viagem aceite com sucesso.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'accepted_warning'): ?>
-        <p style="color:orange;">Viagem aceite, mas atenção: esta viatura tem outra viagem a menos de 2 horas de distância. Confirma que consegues cumprir as duas, ou usa outra viatura/motorista.</p>
+        <p class="alert alert-warning">Viagem aceite, mas atenção: esta viatura tem outra viagem a menos de 2 horas de distância. Confirma que consegues cumprir as duas, ou usa outra viatura/motorista.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'schedule_conflict'): ?>
-        <p style="color:red;">Não foi possível aceitar: esta viatura já tem outra viagem exatamente à mesma hora. Escolhe outra viatura ou liberta a viagem em conflito primeiro.</p>
+        <p class="alert alert-error">Não foi possível aceitar: esta viatura já tem outra viagem exatamente à mesma hora. Escolhe outra viatura ou liberta a viagem em conflito primeiro.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'conflict'): ?>
-        <p style="color:red;">Essa viagem já tinha sido aceite por outro parceiro entretanto.</p>
+        <p class="alert alert-error">Essa viagem já tinha sido aceite por outro parceiro entretanto.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'not_found'): ?>
-        <p style="color:red;">Essa viagem já não está disponível.</p>
+        <p class="alert alert-error">Essa viagem já não está disponível.</p>
     <?php endif; ?>
 
     <?php if ($vehicles === []): ?>
-        <p>Não tens viaturas ativas registadas.</p>
+        <p class="muted">Não tens viaturas ativas registadas.</p>
     <?php else: ?>
         <form method="get" action="/mural.php">
-            <label>Viatura:
+            <label>Viatura
                 <select name="vehicle_id" onchange="this.form.submit()">
                     <?php foreach ($vehicles as $vehicle): ?>
                         <option value="<?= (int) $vehicle['id'] ?>" <?= $selectedVehicle && (int) $selectedVehicle['id'] === (int) $vehicle['id'] ? 'selected' : '' ?>>
@@ -164,17 +159,16 @@ function render_trips_table(array $trips, int $vehicleId): void
 
         <h2>Convites privados</h2>
         <?php if ($privateInvites === []): ?>
-            <p>Não tens convites privados em aberto para esta viatura.</p>
+            <p class="muted">Não tens convites privados em aberto para esta viatura.</p>
         <?php else: ?>
             <?php render_trips_table($privateInvites, (int) $selectedVehicle['id']); ?>
         <?php endif; ?>
 
         <h2>Viagens públicas</h2>
         <?php if ($trips === []): ?>
-            <p>Não há viagens elegíveis para esta viatura neste momento.</p>
+            <p class="muted">Não há viagens elegíveis para esta viatura neste momento.</p>
         <?php else: ?>
             <?php render_trips_table($trips, (int) $selectedVehicle['id']); ?>
         <?php endif; ?>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

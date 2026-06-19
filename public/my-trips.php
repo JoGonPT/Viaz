@@ -34,32 +34,27 @@ $tripsStmt->execute(['partner_id' => $partner['id']]);
 $trips = $tripsStmt->fetchAll();
 
 $outcomeMessages = [
-    'updated' => ['color' => 'green', 'text' => 'Estado da viagem atualizado.'],
-    'cancelled' => ['color' => 'green', 'text' => 'Viagem cancelada e reaberta no mural.'],
-    'conflict' => ['color' => 'red', 'text' => 'Não foi possível atualizar — o estado já tinha mudado entretanto.'],
-    'not_found' => ['color' => 'red', 'text' => 'Viagem não encontrada.'],
-    'invalid_transition' => ['color' => 'red', 'text' => 'Essa ação não é válida para o estado atual da viagem.'],
+    'updated' => ['class' => 'alert-success', 'text' => 'Estado da viagem atualizado.'],
+    'cancelled' => ['class' => 'alert-success', 'text' => 'Viagem cancelada e reaberta no mural.'],
+    'conflict' => ['class' => 'alert-error', 'text' => 'Não foi possível atualizar — o estado já tinha mudado entretanto.'],
+    'not_found' => ['class' => 'alert-error', 'text' => 'Viagem não encontrada.'],
+    'invalid_transition' => ['class' => 'alert-error', 'text' => 'Essa ação não é válida para o estado atual da viagem.'],
 ];
 $outcome = $outcomeMessages[$_GET['outcome'] ?? ''] ?? null;
+
+$pageTitle = 'As minhas viagens';
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>As minhas viagens</title>
-</head>
-<body>
     <h1>As minhas viagens</h1>
-    <p><a href="/index.php">Voltar</a></p>
 
     <?php if ($outcome !== null): ?>
-        <p style="color:<?= $outcome['color'] ?>;"><?= htmlspecialchars($outcome['text'], ENT_QUOTES) ?></p>
+        <p class="alert <?= $outcome['class'] ?>"><?= htmlspecialchars($outcome['text'], ENT_QUOTES) ?></p>
     <?php endif; ?>
 
     <?php if ($trips === []): ?>
-        <p>Ainda não aceitaste nenhuma viagem.</p>
+        <p class="muted">Ainda não aceitaste nenhuma viagem.</p>
     <?php else: ?>
-        <table border="1" cellpadding="6">
+        <table>
             <thead>
                 <tr>
                     <th>Origem</th>
@@ -83,10 +78,10 @@ $outcome = $outcomeMessages[$_GET['outcome'] ?? ''] ?? null;
                         <td><?= (int) $trip['luggage_count'] ?></td>
                         <td><?= htmlspecialchars($trip['license_plate'] ?? '-', ENT_QUOTES) ?></td>
                         <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
-                        <td><?= htmlspecialchars($trip['status'], ENT_QUOTES) ?></td>
-                        <td>
+                        <td><span class="badge"><?= htmlspecialchars($trip['status'], ENT_QUOTES) ?></span></td>
+                        <td class="actions-cell">
                             <?php if ($trip['status'] === 'assigned'): ?>
-                                <form method="post" action="/update-trip-status.php" style="display:inline;">
+                                <form class="inline" method="post" action="/update-trip-status.php">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
                                     <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
                                     <input type="hidden" name="action" value="start">
@@ -95,7 +90,7 @@ $outcome = $outcomeMessages[$_GET['outcome'] ?? ''] ?? null;
                             <?php endif; ?>
 
                             <?php if ($trip['status'] === 'in_progress'): ?>
-                                <form method="post" action="/update-trip-status.php" style="display:inline;">
+                                <form class="inline" method="post" action="/update-trip-status.php">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
                                     <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
                                     <input type="hidden" name="action" value="complete">
@@ -104,12 +99,12 @@ $outcome = $outcomeMessages[$_GET['outcome'] ?? ''] ?? null;
                             <?php endif; ?>
 
                             <?php if (in_array($trip['status'], ['assigned', 'in_progress'], true)): ?>
-                                <form method="post" action="/update-trip-status.php" style="display:inline;">
+                                <form class="inline" method="post" action="/update-trip-status.php">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
                                     <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
                                     <input type="hidden" name="action" value="cancel">
                                     <input type="text" name="reason" placeholder="Motivo (opcional)">
-                                    <button type="submit">Cancelar</button>
+                                    <button type="submit" class="btn-danger">Cancelar</button>
                                 </form>
                             <?php endif; ?>
                         </td>
@@ -118,5 +113,4 @@ $outcome = $outcomeMessages[$_GET['outcome'] ?? ''] ?? null;
             </tbody>
         </table>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>

@@ -125,30 +125,27 @@ $allocated = $allocatedStmt->fetch();
 
 $remainingPassengers = (int) $group['total_passengers'] - (int) $allocated['passengers'];
 $remainingLuggage = (int) $group['total_luggage'] - (int) $allocated['luggage'];
+$pageTitle = 'Grupo #' . (int) $group['id'];
+require __DIR__ . '/../views/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Grupo #<?= (int) $group['id'] ?></title>
-</head>
-<body>
     <h1>Grupo #<?= (int) $group['id'] ?> — <?= htmlspecialchars($group['company_name'], ENT_QUOTES) ?></h1>
-    <p><a href="/groups.php">Voltar</a></p>
+    <p><a href="/groups.php">← Voltar aos grupos</a></p>
 
-    <p>
-        <?= htmlspecialchars($group['origin'], ENT_QUOTES) ?> → <?= htmlspecialchars($group['destination'], ENT_QUOTES) ?><br>
-        Data/Hora: <?= htmlspecialchars($group['scheduled_at'], ENT_QUOTES) ?><br>
-        Total: <?= (int) $group['total_passengers'] ?> passageiros, <?= (int) $group['total_luggage'] ?> malas<br>
-        Já alocado: <?= (int) $allocated['passengers'] ?> passageiros, <?= (int) $allocated['luggage'] ?> malas<br>
-        Estado: <?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?>
-    </p>
+    <div class="card">
+        <p>
+            <?= htmlspecialchars($group['origin'], ENT_QUOTES) ?> → <?= htmlspecialchars($group['destination'], ENT_QUOTES) ?><br>
+            Data/Hora: <?= htmlspecialchars($group['scheduled_at'], ENT_QUOTES) ?><br>
+            Total: <?= (int) $group['total_passengers'] ?> passageiros, <?= (int) $group['total_luggage'] ?> malas<br>
+            Já alocado: <?= (int) $allocated['passengers'] ?> passageiros, <?= (int) $allocated['luggage'] ?> malas<br>
+            Estado: <span class="badge"><?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?></span>
+        </p>
+    </div>
 
     <h2>Viagens deste grupo</h2>
     <?php if ($trips === []): ?>
-        <p>Ainda não há viagens criadas para este grupo.</p>
+        <p class="muted">Ainda não há viagens criadas para este grupo.</p>
     <?php else: ?>
-        <table border="1" cellpadding="6">
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -167,7 +164,7 @@ $remainingLuggage = (int) $group['total_luggage'] - (int) $allocated['luggage'];
                         <td><?= (int) $trip['luggage_count'] ?></td>
                         <td><?= htmlspecialchars($trip['visibility'], ENT_QUOTES) ?></td>
                         <td><?= htmlspecialchars($trip['assigned_partner_name'] ?? $trip['invited_partner_name'] ?? '-', ENT_QUOTES) ?></td>
-                        <td><?= htmlspecialchars($trip['status'], ENT_QUOTES) ?></td>
+                        <td><span class="badge"><?= htmlspecialchars($trip['status'], ENT_QUOTES) ?></span></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -175,39 +172,38 @@ $remainingLuggage = (int) $group['total_luggage'] - (int) $allocated['luggage'];
     <?php endif; ?>
 
     <?php foreach ($errors as $error): ?>
-        <p style="color:red;"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
+        <p class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES) ?></p>
     <?php endforeach; ?>
 
     <?php if ($remainingPassengers <= 0 && $remainingLuggage <= 0): ?>
-        <p>Grupo totalmente alocado — não é possível adicionar mais viagens.</p>
+        <p class="alert alert-success">Grupo totalmente alocado — não é possível adicionar mais viagens.</p>
     <?php else: ?>
         <h2>Adicionar viagem (restam <?= $remainingPassengers ?> passageiros, <?= $remainingLuggage ?> malas)</h2>
         <form method="post" action="/group-trips.php?group_id=<?= (int) $group['id'] ?>">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
 
-            <label>Visibilidade:
+            <label>Visibilidade
                 <select name="visibility" id="visibility">
                     <option value="public">Pública (mural)</option>
                     <option value="private">Privada (parceiro convidado)</option>
                 </select>
-            </label><br>
+            </label>
 
-            <label>Parceiro convidado (só para privada):
+            <label>Parceiro convidado (só para privada)
                 <select name="partner_id">
                     <option value="">—</option>
                     <?php foreach ($partners as $partner): ?>
                         <option value="<?= (int) $partner['id'] ?>"><?= htmlspecialchars($partner['company_name'], ENT_QUOTES) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </label><br>
+            </label>
 
-            <label>Passageiros: <input type="number" name="passengers_count" min="1" max="<?= $remainingPassengers ?>" required></label><br>
-            <label>Malas: <input type="number" name="luggage_count" min="0" max="<?= $remainingLuggage ?>" value="0" required></label><br>
-            <label>Data/Hora (opcional, herda do grupo se vazio): <input type="datetime-local" name="scheduled_at"></label><br>
-            <label>Preço (opcional): <input type="number" name="listed_price" step="0.01" min="0"></label><br>
+            <label>Passageiros <input type="number" name="passengers_count" min="1" max="<?= $remainingPassengers ?>" required></label>
+            <label>Malas <input type="number" name="luggage_count" min="0" max="<?= $remainingLuggage ?>" value="0" required></label>
+            <label>Data/Hora (opcional, herda do grupo se vazio) <input type="datetime-local" name="scheduled_at"></label>
+            <label>Preço (opcional) <input type="number" name="listed_price" step="0.01" min="0"></label>
 
             <button type="submit">Adicionar viagem</button>
         </form>
     <?php endif; ?>
-</body>
-</html>
+<?php require __DIR__ . '/../views/footer.php'; ?>
