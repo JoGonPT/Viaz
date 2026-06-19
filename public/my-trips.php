@@ -54,6 +54,7 @@ require __DIR__ . '/../views/header.php';
     <?php if ($trips === []): ?>
         <p class="muted">Ainda não aceitaste nenhuma viagem.</p>
     <?php else: ?>
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
@@ -112,5 +113,6 @@ require __DIR__ . '/../views/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     <?php endif; ?>
 <?php require __DIR__ . '/../views/footer.php'; ?>

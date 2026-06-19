@@ -88,6 +88,7 @@ if ($selectedVehicle !== null) {
 function render_trips_table(array $trips, int $vehicleId): void
 {
     ?>
+    <div class="table-scroll">
     <table>
         <thead>
             <tr>
@@ -121,6 +122,7 @@ function render_trips_table(array $trips, int $vehicleId): void
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
     <?php
 }
 

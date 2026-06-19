@@ -19,12 +19,17 @@
     box-sizing: border-box;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--color-bg);
     color: var(--color-text);
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 a {
@@ -36,6 +41,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Topbar — mobile first: wraps onto multiple lines on narrow screens */
 .topbar {
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
@@ -44,55 +50,60 @@ a:hover {
 .topbar-inner {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 14px 24px;
+    padding: 10px 16px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 24px;
+    gap: 10px 16px;
 }
 
 .brand {
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--color-primary-dark);
 }
 
 .topbar-inner nav {
     display: flex;
-    gap: 16px;
-    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    flex: 1 1 100%;
+    order: 3;
+    font-size: 0.9rem;
 }
 
 .topbar-user {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     color: var(--color-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    margin-left: auto;
 }
 
 .container {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 32px 24px;
+    padding: 16px;
 }
 
 .auth-container {
     max-width: 360px;
-    margin: 80px auto;
-    padding: 32px;
+    margin: 40px auto;
+    padding: 24px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
 }
 
 h1 {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     margin-bottom: 8px;
 }
 
 h2 {
-    font-size: 1.2rem;
-    margin-top: 32px;
+    font-size: 1.1rem;
+    margin-top: 28px;
     margin-bottom: 12px;
 }
 
@@ -100,17 +111,25 @@ h2 {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+/* Tables scroll horizontally on narrow screens instead of squeezing columns */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius);
 }
 
 table {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    overflow: hidden;
 }
 
 th, td {
@@ -118,6 +137,7 @@ th, td {
     text-align: left;
     border-bottom: 1px solid var(--color-border);
     font-size: 0.92rem;
+    white-space: nowrap;
 }
 
 thead th {
@@ -125,7 +145,7 @@ thead th {
     color: var(--color-muted);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 0.03em;
 }
 
@@ -137,14 +157,17 @@ form {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    width: 100%;
     max-width: 480px;
 }
 
 form.inline {
     flex-direction: row;
+    flex-wrap: wrap;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    width: auto;
     max-width: none;
 }
 
@@ -158,12 +181,17 @@ label {
 
 input, select, button {
     font-family: inherit;
-    font-size: 0.95rem;
-    padding: 9px 12px;
+    font-size: 1rem;
+    padding: 10px 12px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     background: var(--color-surface);
     color: var(--color-text);
+    min-height: 42px;
+}
+
+input, select {
+    width: 100%;
 }
 
 input:focus, select:focus {
@@ -178,6 +206,7 @@ button {
     cursor: pointer;
     font-weight: 600;
     align-self: flex-start;
+    width: 100%;
 }
 
 button:hover {
@@ -188,9 +217,15 @@ button.btn-danger {
     background: var(--color-error-text);
 }
 
+form.inline button,
+form.inline input {
+    width: auto;
+}
+
 table form.inline button {
-    padding: 6px 10px;
+    padding: 8px 12px;
     font-size: 0.85rem;
+    min-height: 36px;
 }
 
 .alert {
@@ -224,6 +259,7 @@ table form.inline button {
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
+    white-space: normal;
 }
 
 .badge {
@@ -234,4 +270,50 @@ table form.inline button {
     font-weight: 600;
     background: #eef2f5;
     color: var(--color-muted);
+    white-space: nowrap;
+}
+
+/* From here up, everything above is the mobile-first base. Progressive
+   enhancement for larger screens only adds breathing room — no layout
+   changes are required to stay usable at any width down to ~320px. */
+@media (min-width: 640px) {
+    .topbar-inner {
+        padding: 14px 24px;
+        gap: 24px;
+    }
+
+    .topbar-inner nav {
+        flex: 1 1 auto;
+        order: 0;
+        font-size: 1rem;
+    }
+
+    .topbar-user {
+        font-size: 0.9rem;
+    }
+
+    .container {
+        padding: 32px 24px;
+    }
+
+    .auth-container {
+        margin: 80px auto;
+        padding: 32px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .card {
+        padding: 20px 24px;
+    }
+
+    button {
+        width: auto;
+    }
 }
