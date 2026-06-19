@@ -83,13 +83,18 @@ $reason = trim($_POST['reason'] ?? '');
 
 $pdo = Database::connection();
 
-$partnerStmt = $pdo->prepare('SELECT id FROM partners WHERE user_id = :user_id');
+$partnerStmt = $pdo->prepare('SELECT id, status FROM partners WHERE user_id = :user_id');
 $partnerStmt->execute(['user_id' => $_SESSION['user_id']]);
 $partner = $partnerStmt->fetch();
 
 if (!$partner) {
     http_response_code(403);
     exit('Conta de parceiro não encontrada.');
+}
+
+if ($partner['status'] !== 'active') {
+    http_response_code(403);
+    exit('A tua conta de parceiro está pendente de aprovação.');
 }
 
 $tripStmt = $pdo->prepare(

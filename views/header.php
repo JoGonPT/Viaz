@@ -29,6 +29,8 @@ $currentUser = Auth::check() ? Auth::user() : null;
                 <?php if ($currentUser['role'] === 'admin'): ?>
                     <a href="/private-trip-new.php">Envio privado</a>
                     <a href="/groups.php">Grupos</a>
+                    <a href="/partners.php">Parceiros</a>
+                    <a href="/password-reset-requests.php">Recuperações de password</a>
                 <?php endif; ?>
                 <?php if ($currentUser['role'] === 'client'): ?>
                     <a href="/my-requests.php">Os meus pedidos</a>

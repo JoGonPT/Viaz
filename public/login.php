@@ -44,5 +44,9 @@ require __DIR__ . '/../views/header.php';
             <label>Password <input type="password" name="password" required></label>
             <button type="submit">Entrar</button>
         </form>
+        <p class="muted">
+            <a href="/forgot-password.php">Esqueceste-te da password?</a><br>
+            Ainda não tens conta? <a href="/register.php">Regista-te como parceiro</a>
+        </p>
     </div>
 <?php require __DIR__ . '/../views/footer.php'; ?>

@@ -30,6 +30,8 @@ require __DIR__ . '/../views/header.php';
             <h2 style="margin-top:0;">Administração</h2>
             <p><a href="/private-trip-new.php">Criar envio privado</a></p>
             <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
+            <p><a href="/partners.php">Gerir parceiros</a></p>
+            <p><a href="/password-reset-requests.php">Pedidos de recuperação de password</a></p>
         </div>
     <?php endif; ?>
 
