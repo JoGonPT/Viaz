@@ -53,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $luggageCount = (int) ($_POST['luggage_count'] ?? 0);
         $scheduledAt = trim($_POST['scheduled_at'] ?? '') ?: $group['scheduled_at'];
         $listedPrice = trim($_POST['listed_price'] ?? '');
+        $contactPhone = trim($_POST['contact_phone'] ?? '');
+        $tripNotes = trim($_POST['notes'] ?? '');
 
         if (!in_array($visibility, ['public', 'private'], true)) {
             $errors[] = 'Visibilidade inválida.';
@@ -72,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($errors === []) {
             $pdo->prepare(
-                "INSERT INTO trips (service_group_id, passengers_count, luggage_count, visibility, invited_partner_id, status, scheduled_at, listed_price)
-                 VALUES (:group_id, :passengers, :luggage, :visibility, :partner_id, 'open', :scheduled_at, :listed_price)"
+                "INSERT INTO trips (service_group_id, passengers_count, luggage_count, visibility, invited_partner_id, status, scheduled_at, listed_price, contact_phone, notes)
+                 VALUES (:group_id, :passengers, :luggage, :visibility, :partner_id, 'open', :scheduled_at, :listed_price, :contact_phone, :notes)"
             )->execute([
                 'group_id' => $groupId,
                 'passengers' => $passengersCount,
@@ -82,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'partner_id' => $visibility === 'private' ? $partnerId : null,
                 'scheduled_at' => $scheduledAt,
                 'listed_price' => $listedPrice !== '' ? $listedPrice : null,
+                'contact_phone' => $contactPhone !== '' ? $contactPhone : null,
+                'notes' => $tripNotes !== '' ? $tripNotes : null,
             ]);
 
             $newAllocatedPassengers = (int) $allocated['passengers'] + $passengersCount;
@@ -105,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $tripsStmt = $pdo->prepare(
     "SELECT t.id, t.passengers_count, t.luggage_count, t.visibility, t.status, t.scheduled_at, t.listed_price,
+            t.contact_phone, t.notes,
             ip.company_name AS invited_partner_name, ap.company_name AS assigned_partner_name
      FROM trips t
      LEFT JOIN partners ip ON ip.id = t.invited_partner_id
@@ -138,6 +143,12 @@ require __DIR__ . '/../views/header.php';
             Total: <?= (int) $group['total_passengers'] ?> passageiros, <?= (int) $group['total_luggage'] ?> malas<br>
             Já alocado: <?= (int) $allocated['passengers'] ?> passageiros, <?= (int) $allocated['luggage'] ?> malas<br>
             Estado: <span class="badge"><?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?></span>
+            <?php if (!empty($group['contact_phone'])): ?>
+                <br>Contacto: <?= htmlspecialchars($group['contact_phone'], ENT_QUOTES) ?>
+            <?php endif; ?>
+            <?php if (!empty($group['notes'])): ?>
+                <br>Observações: <?= htmlspecialchars($group['notes'], ENT_QUOTES) ?>
+            <?php endif; ?>
         </p>
     </div>
 
@@ -155,6 +166,8 @@ require __DIR__ . '/../views/header.php';
                     <th>Visibilidade</th>
                     <th>Convidado/Atribuído</th>
                     <th>Estado</th>
+                    <th>Contacto</th>
+                    <th>Observações</th>
                 </tr>
             </thead>
             <tbody>
@@ -166,6 +179,8 @@ require __DIR__ . '/../views/header.php';
                         <td><?= htmlspecialchars($trip['visibility'], ENT_QUOTES) ?></td>
                         <td><?= htmlspecialchars($trip['assigned_partner_name'] ?? $trip['invited_partner_name'] ?? '-', ENT_QUOTES) ?></td>
                         <td><span class="badge"><?= htmlspecialchars($trip['status'], ENT_QUOTES) ?></span></td>
+                        <td><?= htmlspecialchars($trip['contact_phone'] ?? '-', ENT_QUOTES) ?></td>
+                        <td><?= htmlspecialchars($trip['notes'] ?? '-', ENT_QUOTES) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -204,6 +219,8 @@ require __DIR__ . '/../views/header.php';
             <label>Malas <input type="number" name="luggage_count" min="0" max="<?= $remainingLuggage ?>" value="0" required></label>
             <label>Data/Hora (opcional, herda do grupo se vazio) <input type="datetime-local" name="scheduled_at"></label>
             <label>Preço (opcional) <input type="number" name="listed_price" step="0.01" min="0"></label>
+            <label>Contacto do cliente (telefone) <input type="tel" name="contact_phone"></label>
+            <label>Observações (ex: cadeirinhas, mobilidade reduzida) <input type="text" name="notes"></label>
 
             <button type="submit">Adicionar viagem</button>
         </form>

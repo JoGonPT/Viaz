@@ -33,6 +33,7 @@ if ($partner['status'] !== 'active') {
 
 $tripsStmt = $pdo->prepare(
     "SELECT t.id, t.service_group_id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price, t.status,
+            t.contact_phone, t.notes,
             sg.origin, sg.destination, sg.total_passengers,
             v.license_plate, v.vehicle_type, v.seats_capacity,
             u.full_name AS created_by_name, u.phone AS created_by_phone
@@ -92,7 +93,14 @@ function render_my_trip_card(array $trip): void
                 <div><dt class="text-slate-400 text-xs">Malas</dt><dd class="font-medium"><?= (int) $trip['luggage_count'] ?></dd></div>
                 <div><dt class="text-slate-400 text-xs">Preço</dt><dd class="font-medium"><?= htmlspecialchars($price, ENT_QUOTES) ?></dd></div>
                 <div><dt class="text-slate-400 text-xs">Criado por</dt><dd class="font-medium"><?= htmlspecialchars($trip['created_by_name'] ?? '—', ENT_QUOTES) ?></dd></div>
+                <?php if (!empty($trip['contact_phone'])): ?>
+                    <div><dt class="text-slate-400 text-xs">Contacto do cliente</dt><dd class="font-medium"><?= htmlspecialchars($trip['contact_phone'], ENT_QUOTES) ?></dd></div>
+                <?php endif; ?>
             </dl>
+
+            <?php if (!empty($trip['notes'])): ?>
+                <p class="text-sm bg-amber-50 text-amber-800 rounded-xl p-3">📝 <?= htmlspecialchars($trip['notes'], ENT_QUOTES) ?></p>
+            <?php endif; ?>
 
             <?php if ((int) $trip['total_passengers'] > (int) $trip['passengers_count']): ?>
                 <a href="/group-trips.php?group_id=<?= (int) $trip['service_group_id'] ?>"

@@ -60,6 +60,7 @@ $privateInvites = [];
 if ($selectedVehicle !== null) {
     $tripsStmt = $pdo->prepare(
         "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price, t.status,
+                t.contact_phone, t.notes,
                 sg.origin, sg.destination, u.full_name AS created_by_name, u.phone AS created_by_phone
          FROM trips t
          INNER JOIN service_groups sg ON sg.id = t.service_group_id
@@ -78,6 +79,7 @@ if ($selectedVehicle !== null) {
 
     $privateStmt = $pdo->prepare(
         "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price, t.status,
+                t.contact_phone, t.notes,
                 sg.origin, sg.destination, u.full_name AS created_by_name, u.phone AS created_by_phone
          FROM trips t
          INNER JOIN service_groups sg ON sg.id = t.service_group_id
@@ -132,7 +134,14 @@ function render_trip_card(array $trip, int $vehicleId, string $prefix): void
                 <div><dt class="text-slate-400 text-xs">Malas</dt><dd class="font-medium"><?= (int) $trip['luggage_count'] ?></dd></div>
                 <div><dt class="text-slate-400 text-xs">Preço</dt><dd class="font-medium"><?= htmlspecialchars($price, ENT_QUOTES) ?></dd></div>
                 <div><dt class="text-slate-400 text-xs">Criado por</dt><dd class="font-medium"><?= htmlspecialchars($creator ?? '—', ENT_QUOTES) ?></dd></div>
+                <?php if (!empty($trip['contact_phone'])): ?>
+                    <div><dt class="text-slate-400 text-xs">Contacto do cliente</dt><dd class="font-medium"><?= htmlspecialchars($trip['contact_phone'], ENT_QUOTES) ?></dd></div>
+                <?php endif; ?>
             </dl>
+
+            <?php if (!empty($trip['notes'])): ?>
+                <p class="text-sm bg-amber-50 text-amber-800 rounded-xl p-3">📝 <?= htmlspecialchars($trip['notes'], ENT_QUOTES) ?></p>
+            <?php endif; ?>
 
             <div class="flex flex-col gap-2">
                 <form method="post" action="/accept-trip.php">

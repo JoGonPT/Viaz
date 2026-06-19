@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $scheduledAt = trim($_POST['scheduled_at'] ?? '');
         $totalPassengers = (int) ($_POST['total_passengers'] ?? 0);
         $totalLuggage = (int) ($_POST['total_luggage'] ?? 0);
+        $contactPhone = trim($_POST['contact_phone'] ?? '');
         $notes = trim($_POST['notes'] ?? '');
 
         if ($origin === '' || $destination === '' || $scheduledAt === '' || $totalPassengers <= 0) {
@@ -45,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($errors === []) {
             $pdo->prepare(
-                "INSERT INTO service_groups (client_id, origin, destination, scheduled_at, total_passengers, total_luggage, status, notes)
-                 VALUES (:client_id, :origin, :destination, :scheduled_at, :passengers, :luggage, 'draft', :notes)"
+                "INSERT INTO service_groups (client_id, origin, destination, scheduled_at, total_passengers, total_luggage, status, contact_phone, notes)
+                 VALUES (:client_id, :origin, :destination, :scheduled_at, :passengers, :luggage, 'draft', :contact_phone, :notes)"
             )->execute([
                 'client_id' => $client['id'],
                 'origin' => $origin,
@@ -54,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'scheduled_at' => $scheduledAt,
                 'passengers' => $totalPassengers,
                 'luggage' => $totalLuggage,
+                'contact_phone' => $contactPhone !== '' ? $contactPhone : null,
                 'notes' => $notes !== '' ? $notes : null,
             ]);
 
@@ -126,7 +128,8 @@ require __DIR__ . '/../views/header.php';
         <label>Data/Hora <input type="datetime-local" name="scheduled_at" required></label>
         <label>Total de passageiros <input type="number" name="total_passengers" min="1" required></label>
         <label>Total de malas <input type="number" name="total_luggage" min="0" value="0" required></label>
-        <label>Notas (opcional) <input type="text" name="notes"></label>
+        <label>Contacto (telefone) <input type="tel" name="contact_phone"></label>
+        <label>Notas (ex: cadeirinhas, mobilidade reduzida) <input type="text" name="notes"></label>
 
         <button type="submit">Enviar pedido</button>
     </form>

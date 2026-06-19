@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passengersCount = (int) ($_POST['passengers_count'] ?? 0);
         $luggageCount = (int) ($_POST['luggage_count'] ?? 0);
         $listedPrice = trim($_POST['listed_price'] ?? '');
+        $contactPhone = trim($_POST['contact_phone'] ?? '');
+        $notes = trim($_POST['notes'] ?? '');
 
         if ($clientId <= 0 || $partnerId <= 0 || $origin === '' || $destination === '' || $scheduledAt === '' || $passengersCount <= 0) {
             $errors[] = 'Preenche todos os campos obrigatórios.';
@@ -53,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $groupId = (int) $pdo->lastInsertId();
 
                 $pdo->prepare(
-                    "INSERT INTO trips (service_group_id, passengers_count, luggage_count, visibility, invited_partner_id, status, scheduled_at, listed_price)
-                     VALUES (:group_id, :passengers, :luggage, 'private', :partner_id, 'open', :scheduled_at, :listed_price)"
+                    "INSERT INTO trips (service_group_id, passengers_count, luggage_count, visibility, invited_partner_id, status, scheduled_at, listed_price, contact_phone, notes)
+                     VALUES (:group_id, :passengers, :luggage, 'private', :partner_id, 'open', :scheduled_at, :listed_price, :contact_phone, :notes)"
                 )->execute([
                     'group_id' => $groupId,
                     'passengers' => $passengersCount,
@@ -62,6 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'partner_id' => $partnerId,
                     'scheduled_at' => $scheduledAt,
                     'listed_price' => $listedPrice !== '' ? $listedPrice : null,
+                    'contact_phone' => $contactPhone !== '' ? $contactPhone : null,
+                    'notes' => $notes !== '' ? $notes : null,
                 ]);
 
                 $pdo->commit();
@@ -114,6 +118,8 @@ require __DIR__ . '/../views/header.php';
             <label>Passageiros <input type="number" name="passengers_count" min="1" required></label>
             <label>Malas <input type="number" name="luggage_count" min="0" value="0" required></label>
             <label>Preço (opcional) <input type="number" name="listed_price" step="0.01" min="0"></label>
+            <label>Contacto do cliente (telefone) <input type="tel" name="contact_phone"></label>
+            <label>Observações (ex: cadeirinhas, mobilidade reduzida) <input type="text" name="notes"></label>
 
             <button type="submit">Criar envio privado</button>
         </form>
