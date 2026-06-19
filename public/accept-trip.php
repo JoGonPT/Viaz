@@ -45,9 +45,10 @@ if (!$vehicle) {
 $tripStmt = $pdo->prepare(
     "SELECT id, passengers_count, luggage_count, status, version
      FROM trips
-     WHERE id = :trip_id AND visibility = 'public'"
+     WHERE id = :trip_id
+       AND (visibility = 'public' OR (visibility = 'private' AND invited_partner_id = :partner_id))"
 );
-$tripStmt->execute(['trip_id' => $tripId]);
+$tripStmt->execute(['trip_id' => $tripId, 'partner_id' => $partner['id']]);
 $trip = $tripStmt->fetch();
 
 $outcome = 'not_found';

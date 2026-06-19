@@ -45,6 +45,7 @@ if ($selectedVehicle === null && $vehicles !== []) {
 }
 
 $trips = [];
+$privateInvites = [];
 
 if ($selectedVehicle !== null) {
     $tripsStmt = $pdo->prepare(
@@ -63,6 +64,64 @@ if ($selectedVehicle !== null) {
         'luggage_capacity' => $selectedVehicle['luggage_capacity'],
     ]);
     $trips = $tripsStmt->fetchAll();
+
+    $privateStmt = $pdo->prepare(
+        "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price,
+                sg.origin, sg.destination
+         FROM trips t
+         INNER JOIN service_groups sg ON sg.id = t.service_group_id
+         WHERE t.visibility = 'private'
+           AND t.invited_partner_id = :partner_id
+           AND t.status = 'open'
+           AND t.passengers_count <= :seats_capacity
+           AND t.luggage_count <= :luggage_capacity
+         ORDER BY t.scheduled_at ASC"
+    );
+    $privateStmt->execute([
+        'partner_id' => $partner['id'],
+        'seats_capacity' => $selectedVehicle['seats_capacity'],
+        'luggage_capacity' => $selectedVehicle['luggage_capacity'],
+    ]);
+    $privateInvites = $privateStmt->fetchAll();
+}
+
+function render_trips_table(array $trips, int $vehicleId): void
+{
+    ?>
+    <table border="1" cellpadding="6">
+        <thead>
+            <tr>
+                <th>Origem</th>
+                <th>Destino</th>
+                <th>Data/Hora</th>
+                <th>Passageiros</th>
+                <th>Malas</th>
+                <th>Preço</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($trips as $trip): ?>
+                <tr>
+                    <td><?= htmlspecialchars($trip['origin'], ENT_QUOTES) ?></td>
+                    <td><?= htmlspecialchars($trip['destination'], ENT_QUOTES) ?></td>
+                    <td><?= htmlspecialchars($trip['scheduled_at'], ENT_QUOTES) ?></td>
+                    <td><?= (int) $trip['passengers_count'] ?></td>
+                    <td><?= (int) $trip['luggage_count'] ?></td>
+                    <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
+                    <td>
+                        <form method="post" action="/accept-trip.php">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
+                            <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
+                            <input type="hidden" name="vehicle_id" value="<?= $vehicleId ?>">
+                            <button type="submit">Aceitar</button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php
 }
 ?>
 <!DOCTYPE html>
@@ -99,42 +158,18 @@ if ($selectedVehicle !== null) {
             </label>
         </form>
 
+        <h2>Convites privados</h2>
+        <?php if ($privateInvites === []): ?>
+            <p>Não tens convites privados em aberto para esta viatura.</p>
+        <?php else: ?>
+            <?php render_trips_table($privateInvites, (int) $selectedVehicle['id']); ?>
+        <?php endif; ?>
+
+        <h2>Viagens públicas</h2>
         <?php if ($trips === []): ?>
             <p>Não há viagens elegíveis para esta viatura neste momento.</p>
         <?php else: ?>
-            <table border="1" cellpadding="6">
-                <thead>
-                    <tr>
-                        <th>Origem</th>
-                        <th>Destino</th>
-                        <th>Data/Hora</th>
-                        <th>Passageiros</th>
-                        <th>Malas</th>
-                        <th>Preço</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($trips as $trip): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($trip['origin'], ENT_QUOTES) ?></td>
-                            <td><?= htmlspecialchars($trip['destination'], ENT_QUOTES) ?></td>
-                            <td><?= htmlspecialchars($trip['scheduled_at'], ENT_QUOTES) ?></td>
-                            <td><?= (int) $trip['passengers_count'] ?></td>
-                            <td><?= (int) $trip['luggage_count'] ?></td>
-                            <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
-                            <td>
-                                <form method="post" action="/accept-trip.php">
-                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
-                                    <input type="hidden" name="trip_id" value="<?= (int) $trip['id'] ?>">
-                                    <input type="hidden" name="vehicle_id" value="<?= (int) $selectedVehicle['id'] ?>">
-                                    <button type="submit">Aceitar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <?php render_trips_table($trips, (int) $selectedVehicle['id']); ?>
         <?php endif; ?>
     <?php endif; ?>
 </body>
