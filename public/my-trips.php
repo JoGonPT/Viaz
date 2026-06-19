@@ -30,8 +30,8 @@ if ($partner['status'] !== 'active') {
 }
 
 $tripsStmt = $pdo->prepare(
-    "SELECT t.id, t.service_group_id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price, t.status,
-            sg.origin, sg.destination, sg.total_passengers, sg.total_luggage, v.license_plate
+    "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price, t.status,
+            sg.origin, sg.destination, v.license_plate
      FROM trips t
      INNER JOIN service_groups sg ON sg.id = t.service_group_id
      LEFT JOIN vehicles v ON v.id = t.assigned_vehicle_id
@@ -75,7 +75,6 @@ require __DIR__ . '/../views/header.php';
                     <th>Preço</th>
                     <th>Estado</th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -116,13 +115,6 @@ require __DIR__ . '/../views/header.php';
                                     <input type="text" name="reason" placeholder="Motivo (opcional)">
                                     <button type="submit" class="btn-danger">Cancelar</button>
                                 </form>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ((int) $trip['total_passengers'] > (int) $trip['passengers_count']): ?>
-                                <a href="/group-trips.php?group_id=<?= (int) $trip['service_group_id'] ?>">Repassar parte do grupo</a>
-                            <?php else: ?>
-                                <a href="/group-trips.php?group_id=<?= (int) $trip['service_group_id'] ?>">Ver grupo</a>
                             <?php endif; ?>
                         </td>
                     </tr>
