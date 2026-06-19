@@ -8,9 +8,13 @@ use App\Auth;
 use App\Csrf;
 use App\Database;
 
-Auth::requireRole('admin');
+Auth::requireRole('admin', 'partner');
 
 $pdo = Database::connection();
+
+$currentUser = Auth::user();
+$isAdmin = $currentUser['role'] === 'admin';
+$backLink = $isAdmin ? '/groups.php' : '/my-trips.php';
 
 $groupId = (int) ($_GET['group_id'] ?? 0);
 
@@ -26,6 +30,27 @@ $group = $groupStmt->fetch();
 if (!$group) {
     http_response_code(404);
     exit('Grupo não encontrado.');
+}
+
+if (!$isAdmin) {
+    $partnerStmt = $pdo->prepare('SELECT id, status FROM partners WHERE user_id = :user_id');
+    $partnerStmt->execute(['user_id' => $_SESSION['user_id']]);
+    $ownPartner = $partnerStmt->fetch();
+
+    if (!$ownPartner || $ownPartner['status'] !== 'active') {
+        http_response_code(403);
+        exit('Conta de parceiro não encontrada ou pendente de aprovação.');
+    }
+
+    $involvedStmt = $pdo->prepare(
+        'SELECT 1 FROM trips WHERE service_group_id = :group_id AND assigned_partner_id = :partner_id LIMIT 1'
+    );
+    $involvedStmt->execute(['group_id' => $groupId, 'partner_id' => $ownPartner['id']]);
+
+    if (!$involvedStmt->fetch()) {
+        http_response_code(403);
+        exit('Não tens nenhuma viagem atribuída neste grupo.');
+    }
 }
 
 $partners = $pdo->query('SELECT id, company_name FROM partners WHERE status = "active" ORDER BY company_name')->fetchAll();
@@ -129,7 +154,7 @@ $pageTitle = 'Grupo #' . (int) $group['id'];
 require __DIR__ . '/../views/header.php';
 ?>
     <h1>Grupo #<?= (int) $group['id'] ?> — <?= htmlspecialchars($group['company_name'], ENT_QUOTES) ?></h1>
-    <p><a href="/groups.php">← Voltar aos grupos</a></p>
+    <p><a href="<?= htmlspecialchars($backLink, ENT_QUOTES) ?>">← Voltar</a></p>
 
     <div class="card">
         <p>
