@@ -22,6 +22,7 @@ require __DIR__ . '/../views/header.php';
             <p><a href="/mural.php">Mural de viagens</a></p>
             <p><a href="/my-trips.php">As minhas viagens</a></p>
             <p><a href="/my-vehicles.php">As minhas viaturas</a></p>
+            <p><a href="/new-trip.php">Criar viagem</a></p>
         </div>
     <?php endif; ?>
 

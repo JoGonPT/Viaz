@@ -13,9 +13,10 @@ $pdo = Database::connection();
 
 $groups = $pdo->query(
     "SELECT sg.id, sg.origin, sg.destination, sg.scheduled_at, sg.total_passengers, sg.total_luggage,
-            sg.split_status, c.company_name
+            sg.split_status, c.company_name, u.full_name AS created_by_name
      FROM service_groups sg
      INNER JOIN clients c ON c.id = sg.client_id
+     LEFT JOIN users u ON u.id = sg.created_by_user_id
      ORDER BY sg.scheduled_at DESC"
 )->fetchAll();
 $pageTitle = 'Grupos de serviço';
@@ -38,6 +39,7 @@ require __DIR__ . '/../views/header.php';
                     <th>Passageiros</th>
                     <th>Malas</th>
                     <th>Estado</th>
+                    <th>Criado por</th>
                     <th></th>
                 </tr>
             </thead>
@@ -51,6 +53,7 @@ require __DIR__ . '/../views/header.php';
                         <td><?= (int) $group['total_passengers'] ?></td>
                         <td><?= (int) $group['total_luggage'] ?></td>
                         <td><span class="badge"><?= htmlspecialchars($group['split_status'], ENT_QUOTES) ?></span></td>
+                        <td><?= htmlspecialchars($group['created_by_name'] ?? '-', ENT_QUOTES) ?></td>
                         <td><a href="/group-trips.php?group_id=<?= (int) $group['id'] ?>">Gerir</a></td>
                     </tr>
                 <?php endforeach; ?>

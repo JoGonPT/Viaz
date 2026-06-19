@@ -102,11 +102,13 @@ CREATE TABLE service_groups (
     split_status        ENUM('not_split', 'partially_split', 'fully_split') NOT NULL DEFAULT 'not_split',
     status              ENUM('draft', 'confirmed', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'draft',
     notes               TEXT NULL,
+    created_by_user_id  BIGINT UNSIGNED NULL,
     created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_service_groups_client (client_id),
     KEY idx_service_groups_scheduled (scheduled_at),
-    CONSTRAINT fk_service_groups_client FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE RESTRICT
+    CONSTRAINT fk_service_groups_client FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE RESTRICT,
+    CONSTRAINT fk_service_groups_created_by FOREIGN KEY (created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------

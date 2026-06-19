@@ -58,9 +58,10 @@ $privateInvites = [];
 if ($selectedVehicle !== null) {
     $tripsStmt = $pdo->prepare(
         "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price,
-                sg.origin, sg.destination
+                sg.origin, sg.destination, u.full_name AS created_by_name
          FROM trips t
          INNER JOIN service_groups sg ON sg.id = t.service_group_id
+         LEFT JOIN users u ON u.id = sg.created_by_user_id
          WHERE t.visibility = 'public'
            AND t.status = 'open'
            AND t.passengers_count <= :seats_capacity
@@ -75,9 +76,10 @@ if ($selectedVehicle !== null) {
 
     $privateStmt = $pdo->prepare(
         "SELECT t.id, t.passengers_count, t.luggage_count, t.scheduled_at, t.listed_price,
-                sg.origin, sg.destination
+                sg.origin, sg.destination, u.full_name AS created_by_name
          FROM trips t
          INNER JOIN service_groups sg ON sg.id = t.service_group_id
+         LEFT JOIN users u ON u.id = sg.created_by_user_id
          WHERE t.visibility = 'private'
            AND t.invited_partner_id = :partner_id
            AND t.status = 'open'
@@ -106,6 +108,7 @@ function render_trips_table(array $trips, int $vehicleId): void
                 <th>Passageiros</th>
                 <th>Malas</th>
                 <th>Preço</th>
+                <th>Criado por</th>
                 <th></th>
             </tr>
         </thead>
@@ -118,6 +121,7 @@ function render_trips_table(array $trips, int $vehicleId): void
                     <td><?= (int) $trip['passengers_count'] ?></td>
                     <td><?= (int) $trip['luggage_count'] ?></td>
                     <td><?= $trip['listed_price'] !== null ? htmlspecialchars((string) $trip['listed_price'], ENT_QUOTES) . ' €' : '-' ?></td>
+                    <td><?= htmlspecialchars($trip['created_by_name'] ?? '-', ENT_QUOTES) ?></td>
                     <td>
                         <form class="inline" method="post" action="/accept-trip.php">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
