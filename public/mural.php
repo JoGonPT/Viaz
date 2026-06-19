@@ -136,6 +136,10 @@ function render_trips_table(array $trips, int $vehicleId): void
 
     <?php if (($_GET['outcome'] ?? null) === 'accepted'): ?>
         <p style="color:green;">Viagem aceite com sucesso.</p>
+    <?php elseif (($_GET['outcome'] ?? null) === 'accepted_warning'): ?>
+        <p style="color:orange;">Viagem aceite, mas atenção: esta viatura tem outra viagem a menos de 2 horas de distância. Confirma que consegues cumprir as duas, ou usa outra viatura/motorista.</p>
+    <?php elseif (($_GET['outcome'] ?? null) === 'schedule_conflict'): ?>
+        <p style="color:red;">Não foi possível aceitar: esta viatura já tem outra viagem exatamente à mesma hora. Escolhe outra viatura ou liberta a viagem em conflito primeiro.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'conflict'): ?>
         <p style="color:red;">Essa viagem já tinha sido aceite por outro parceiro entretanto.</p>
     <?php elseif (($_GET['outcome'] ?? null) === 'not_found'): ?>
