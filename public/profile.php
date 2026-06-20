@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $newAvatarPath = null;
         if ($errors === [] && isset($_FILES['avatar'])) {
-            $newAvatarPath = save_uploaded_avatar($_FILES['avatar'], $user['id'], $errors);
+            $newAvatarPath = save_uploaded_avatar($_FILES['avatar'], (int) $user['id'], $errors);
         }
 
         if ($errors === []) {
