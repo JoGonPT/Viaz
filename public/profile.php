@@ -23,8 +23,15 @@ if ($user['role'] === 'partner') {
     $partner = $partnerStmt->fetch();
 }
 
+$pendingEmailStmt = $pdo->prepare(
+    "SELECT id, new_email, created_at FROM email_change_requests WHERE user_id = :user_id AND status = 'pending' LIMIT 1"
+);
+$pendingEmailStmt->execute(['user_id' => $user['id']]);
+$pendingEmailChange = $pendingEmailStmt->fetch();
+
 $errors = [];
 $success = false;
+$emailChangeRequested = false;
 
 function save_uploaded_avatar(array $file, int $userId, array &$errors): ?string
 {
@@ -75,15 +82,42 @@ function save_uploaded_avatar(array $file, int $userId, array &$errors): ?string
     return '/uploads/avatars/' . $filename;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_email_change'])) {
+    if (Csrf::verify($_POST['csrf_token'] ?? null) && $pendingEmailChange) {
+        $pdo->prepare("UPDATE email_change_requests SET status = 'rejected', resolved_at = NOW() WHERE id = :id AND user_id = :user_id")
+            ->execute(['id' => $pendingEmailChange['id'], 'user_id' => $user['id']]);
+        $pendingEmailChange = null;
+    }
+
+    header('Location: /profile.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Sessão inválida, tente novamente.';
     } else {
         $fullName = trim($_POST['full_name'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
+        $newEmail = trim($_POST['email'] ?? '');
 
         if ($fullName === '') {
             $errors[] = 'O nome não pode estar vazio.';
+        }
+
+        if ($pendingEmailChange === false && $newEmail !== '' && $newEmail !== $user['email']) {
+            if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Email inválido.';
+            } else {
+                $emailExistsStmt = $pdo->prepare('SELECT id FROM users WHERE email = :email AND id != :id');
+                $emailExistsStmt->execute(['email' => $newEmail, 'id' => $user['id']]);
+
+                if ($emailExistsStmt->fetch()) {
+                    $errors[] = 'Esse email já está a ser usado por outra conta.';
+                } else {
+                    $emailChangeRequested = true;
+                }
+            }
         }
 
         if ($partner !== null) {
@@ -144,6 +178,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $partner['partner_type'] = $partnerType;
             }
 
+            if ($emailChangeRequested) {
+                $pdo->prepare(
+                    "INSERT INTO email_change_requests (user_id, current_email, new_email, status)
+                     VALUES (:user_id, :current_email, :new_email, 'pending')"
+                )->execute([
+                    'user_id' => $user['id'],
+                    'current_email' => $user['email'],
+                    'new_email' => $newEmail,
+                ]);
+
+                $pendingEmailChange = ['id' => (int) $pdo->lastInsertId(), 'new_email' => $newEmail];
+            }
+
             $success = true;
         }
     }
@@ -166,6 +213,17 @@ require __DIR__ . '/../views/header.php';
         <p class="alert alert-warning">Sem telefone definido, o botão de WhatsApp não aparece nas viagens que crias.</p>
     <?php endif; ?>
 
+    <?php if ($pendingEmailChange): ?>
+        <p class="alert alert-warning">
+            Pedido de alteração de email para <strong><?= htmlspecialchars($pendingEmailChange['new_email'], ENT_QUOTES) ?></strong> pendente de aprovação do admin.
+        </p>
+        <form method="post" action="/profile.php" style="margin-bottom:16px;">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
+            <input type="hidden" name="cancel_email_change" value="1">
+            <button type="submit" class="btn-danger">Cancelar pedido</button>
+        </form>
+    <?php endif; ?>
+
     <?php if (!empty($user['avatar_path'])): ?>
         <img src="<?= htmlspecialchars($user['avatar_path'], ENT_QUOTES) ?>" alt="Foto de perfil"
              style="width:96px;height:96px;border-radius:50%;object-fit:cover;margin-bottom:16px;">
@@ -174,7 +232,11 @@ require __DIR__ . '/../views/header.php';
     <form method="post" action="/profile.php" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES) ?>">
 
-        <label>Email <input type="email" value="<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>" disabled></label>
+        <?php if ($pendingEmailChange): ?>
+            <label>Email <input type="email" value="<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>" disabled></label>
+        <?php else: ?>
+            <label>Email (alterar requer aprovação do admin) <input type="email" name="email" value="<?= htmlspecialchars($user['email'], ENT_QUOTES) ?>" required></label>
+        <?php endif; ?>
         <label>Nome completo <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name'], ENT_QUOTES) ?>" required></label>
         <label>Telefone (usado no botão de WhatsApp) <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '', ENT_QUOTES) ?>" placeholder="ex: 351912345678"></label>
         <label>Fotografia de perfil (JPG, PNG ou WEBP, máx. 2MB) <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp"></label>

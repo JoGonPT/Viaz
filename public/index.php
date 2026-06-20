@@ -34,6 +34,7 @@ require __DIR__ . '/../views/header.php';
             <p><a href="/groups.php">Grupos de serviço (desdobramento)</a></p>
             <p><a href="/partners.php">Gerir parceiros</a></p>
             <p><a href="/password-reset-requests.php">Pedidos de recuperação de password</a></p>
+            <p><a href="/email-change-requests.php">Pedidos de alteração de email</a></p>
         </div>
     <?php endif; ?>
 

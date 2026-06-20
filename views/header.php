@@ -33,6 +33,7 @@ $currentUser = Auth::check() ? Auth::user() : null;
                     <a href="/groups.php">Grupos</a>
                     <a href="/partners.php">Parceiros</a>
                     <a href="/password-reset-requests.php">Recuperações de password</a>
+                    <a href="/email-change-requests.php">Alterações de email</a>
                 <?php endif; ?>
                 <?php if ($currentUser['role'] === 'client'): ?>
                     <a href="/my-requests.php">Os meus pedidos</a>
