@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
                 $pdo->prepare(
-                    "INSERT INTO service_groups (client_id, origin, destination, scheduled_at, total_passengers, total_luggage, status)
-                     VALUES (:client_id, :origin, :destination, :scheduled_at, :passengers, :luggage, 'confirmed')"
+                    "INSERT INTO service_groups (client_id, origin, destination, scheduled_at, total_passengers, total_luggage, status, created_by_user_id)
+                     VALUES (:client_id, :origin, :destination, :scheduled_at, :passengers, :luggage, 'confirmed', :created_by)"
                 )->execute([
                     'client_id' => $clientId,
                     'origin' => $origin,
@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'scheduled_at' => $scheduledAt,
                     'passengers' => $passengersCount,
                     'luggage' => $luggageCount,
+                    'created_by' => $_SESSION['user_id'],
                 ]);
                 $groupId = (int) $pdo->lastInsertId();
 

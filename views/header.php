@@ -39,7 +39,7 @@ $currentUser = Auth::check() ? Auth::user() : null;
                 <?php endif; ?>
             </nav>
             <div class="topbar-user">
-                <span><?= htmlspecialchars($currentUser['full_name'], ENT_QUOTES) ?></span>
+                <a href="/profile.php"><?= htmlspecialchars($currentUser['full_name'], ENT_QUOTES) ?></a>
                 <a href="/logout.php">Sair</a>
             </div>
         </div>

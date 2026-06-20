@@ -35,7 +35,10 @@ $activeTab = $activeTab ?? '';
 <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center justify-between">
     <h1 class="text-base font-semibold text-brand-700"><?= htmlspecialchars($pageTitle ?? 'Viaz', ENT_QUOTES) ?></h1>
     <?php if ($currentUser !== null): ?>
-        <a href="/logout.php" class="text-xs font-medium text-slate-400 active:text-slate-600">Sair</a>
+        <span class="flex items-center gap-3 text-xs font-medium text-slate-400">
+            <a href="/profile.php" class="active:text-slate-600">Perfil</a>
+            <a href="/logout.php" class="active:text-slate-600">Sair</a>
+        </span>
     <?php endif; ?>
 </header>
 <main class="px-3 pt-3 max-w-md mx-auto w-full">
