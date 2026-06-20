@@ -11,6 +11,7 @@ CREATE TABLE users (
     role            ENUM('admin', 'partner', 'client') NOT NULL,
     full_name       VARCHAR(150) NOT NULL,
     phone           VARCHAR(30) NULL,
+    avatar_path     VARCHAR(255) NULL,
     status          ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
     last_login_at   DATETIME NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -9,7 +9,7 @@ class Auth
     public static function attempt(string $email, string $password): bool
     {
         $stmt = Database::connection()->prepare(
-            'SELECT id, password_hash, role, status, full_name FROM users WHERE email = :email LIMIT 1'
+            'SELECT id, password_hash, role, status, full_name, avatar_path FROM users WHERE email = :email LIMIT 1'
         );
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
@@ -22,6 +22,7 @@ class Auth
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['full_name'] = $user['full_name'];
+        $_SESSION['avatar_path'] = $user['avatar_path'];
 
         Database::connection()
             ->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id')
@@ -51,6 +52,7 @@ class Auth
             'id' => $_SESSION['user_id'],
             'role' => $_SESSION['role'],
             'full_name' => $_SESSION['full_name'],
+            'avatar_path' => $_SESSION['avatar_path'] ?? null,
         ];
     }
 

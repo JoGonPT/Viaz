@@ -2,3 +2,5 @@
 /vendor/
 database/setup-remote.sh
 sftp.json
+public/uploads/avatars/*
+!public/uploads/avatars/.gitkeep

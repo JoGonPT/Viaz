@@ -36,7 +36,13 @@ $activeTab = $activeTab ?? '';
     <h1 class="text-base font-semibold text-brand-700"><?= htmlspecialchars($pageTitle ?? 'Viaz', ENT_QUOTES) ?></h1>
     <?php if ($currentUser !== null): ?>
         <span class="flex items-center gap-3 text-xs font-medium text-slate-400">
-            <a href="/profile.php" class="active:text-slate-600">Perfil</a>
+            <a href="/profile.php" class="flex items-center gap-1.5 active:text-slate-600">
+                <?php if (!empty($currentUser['avatar_path'])): ?>
+                    <img src="<?= htmlspecialchars($currentUser['avatar_path'], ENT_QUOTES) ?>" alt=""
+                         class="h-6 w-6 rounded-full object-cover">
+                <?php endif; ?>
+                Perfil
+            </a>
             <a href="/logout.php" class="active:text-slate-600">Sair</a>
         </span>
     <?php endif; ?>

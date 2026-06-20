@@ -39,7 +39,13 @@ $currentUser = Auth::check() ? Auth::user() : null;
                 <?php endif; ?>
             </nav>
             <div class="topbar-user">
-                <a href="/profile.php"><?= htmlspecialchars($currentUser['full_name'], ENT_QUOTES) ?></a>
+                <a href="/profile.php" style="display:inline-flex;align-items:center;gap:6px;">
+                    <?php if (!empty($currentUser['avatar_path'])): ?>
+                        <img src="<?= htmlspecialchars($currentUser['avatar_path'], ENT_QUOTES) ?>" alt=""
+                             style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+                    <?php endif; ?>
+                    <?= htmlspecialchars($currentUser['full_name'], ENT_QUOTES) ?>
+                </a>
                 <a href="/logout.php">Sair</a>
             </div>
         </div>
